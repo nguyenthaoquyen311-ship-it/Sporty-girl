@@ -1,0 +1,550 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhật ký năng lượng</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400;1,500&family=Be+Vietnam+Pro:wght@300;400;500;600&family=Quicksand:wght@500;600;700&display=swap');
+:root{
+  --cream:#F7F2EC; --card:#FFFDFA; --sand:#EFE5D9; --line:#E5D9CB;
+  --espresso:#4A3B33; --mocha:#8C7264; --taupe:#A8968A;
+  --mint:#6FB9A0; --mint-soft:#DCEDE6; --mint-deep:#4C9A81;
+  --clay:#C89B82; --caramel:#D8A96A; --rose:#C98C8C;
+  --shadow:0 2px 14px rgba(74,59,51,.06);
+  --shadow-lg:0 8px 30px rgba(74,59,51,.09);
+  --r:22px; --r-sm:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--espresso);
+  font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;
+  font-weight:400;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 18px 70px}
+.num{font-family:'Quicksand',system-ui,sans-serif;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.eyebrow{font-family:'Quicksand';font-weight:600;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--taupe)}
+
+header{text-align:center;padding:6px 0 30px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:clamp(36px,8.5vw,58px);
+  line-height:1.08;margin:12px 0 0;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--mint-deep);font-weight:400}
+.lede{max-width:38ch;margin:14px auto 0;color:var(--mocha);font-size:14.5px;font-weight:300}
+
+h2{font-family:'Quicksand';font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0;color:var(--mocha)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+
+/* ---------- composer ---------- */
+.composer{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-lg);overflow:hidden}
+.composer textarea{width:100%;border:0;padding:20px 22px 6px;font-family:inherit;font-size:16.5px;line-height:1.6;
+  background:transparent;color:var(--espresso);resize:vertical;min-height:112px;display:block;font-weight:300}
+.composer textarea:focus{outline:0}
+.composer textarea::placeholder{color:#C3B4A8;font-weight:300}
+.composer-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px 16px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--sand);color:var(--mocha);
+  padding:6px 13px;border-radius:999px;cursor:pointer;transition:all .18s}
+.chip:hover{background:var(--mint-soft);border-color:var(--mint);color:var(--mint-deep)}
+.btn{font-family:'Quicksand';font-weight:700;font-size:13px;letter-spacing:.06em;
+  background:var(--mint);color:#fff;border:0;padding:13px 26px;border-radius:999px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(111,185,160,.35);transition:all .2s}
+.btn:hover:not(:disabled){background:var(--mint-deep);box-shadow:0 6px 18px rgba(76,154,129,.4);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:wait;box-shadow:none;transform:none}
+.btn.ghost{background:transparent;color:var(--mocha);border:1px solid var(--line);box-shadow:none;font-size:11.5px;padding:9px 16px}
+.btn.ghost:hover{background:var(--sand);color:var(--espresso);transform:none;box-shadow:none}
+:focus-visible{outline:2.5px solid var(--mint);outline-offset:3px;border-radius:6px}
+
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:22px;margin-top:24px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+/* ---------- entries ---------- */
+.entry{display:flex;gap:13px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0;padding-bottom:2px}
+.dot{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;
+  background:var(--sand);color:var(--mocha);font-size:15px;margin-top:1px}
+.dot.act{background:var(--mint-soft);color:var(--mint-deep)}
+.entry .body{flex:1;min-width:0}
+.entry .nm{font-weight:500;font-size:15.5px;line-height:1.35}
+.entry .meta{font-size:12.5px;color:var(--taupe);margin-top:2px;font-weight:300;line-height:1.5}
+.entry .meta b{font-weight:500;color:var(--mocha)}
+.entry .meta .hi{color:var(--rose);font-weight:500}
+.entry .kc{font-family:'Quicksand';font-weight:700;font-size:17px;white-space:nowrap;padding-top:5px;color:var(--espresso)}
+.entry .kc.act{color:var(--mint-deep)}
+.entry .x{border:0;background:none;cursor:pointer;color:#CFC2B7;font-size:19px;line-height:1;padding:4px;border-radius:50%}
+.entry .x:hover{color:var(--rose);background:var(--sand)}
+.empty{padding:20px 0 8px;color:var(--taupe);font-size:13.5px;font-weight:300;line-height:1.6}
+.loading{display:flex;align-items:center;gap:9px;padding:16px 0;color:var(--mocha);font-size:13.5px;font-weight:300}
+.pip{width:8px;height:8px;border-radius:50%;background:var(--mint);animation:bounce 1.1s infinite ease-in-out}
+.pip:nth-child(2){animation-delay:.15s}.pip:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-5px);opacity:1}}
+.err{background:#FBF0EE;border:1px solid #EBD3CE;color:#A5605C;padding:13px 16px;font-size:13.2px;border-radius:var(--r-sm);margin-top:14px}
+
+/* ---------- ring panel ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.ring-box{padding:26px 20px 20px;text-align:center;background:linear-gradient(175deg,var(--mint-soft) 0%,var(--card) 62%)}
+.ring{width:196px;height:196px;margin:0 auto;position:relative}
+.ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.ring circle{fill:none;stroke-linecap:round}
+.ring .track{stroke:#EBE1D6;stroke-width:15}
+.ring .arc{stroke:var(--mint);stroke-width:15;transition:stroke-dashoffset .8s cubic-bezier(.25,.8,.3,1)}
+.ring .arc.over{stroke:var(--clay)}
+.ring-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-mid .lab{font-family:'Quicksand';font-weight:600;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--taupe)}
+.ring-mid .val{font-family:'Quicksand';font-weight:700;font-size:44px;line-height:1;margin-top:4px;letter-spacing:-.03em}
+.ring-mid .unit{font-size:12px;color:var(--mocha);font-weight:300;margin-top:3px}
+.ring-cap{font-size:13px;color:var(--mocha);font-weight:300;margin-top:14px;line-height:1.5}
+
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line)}
+.stat{padding:14px 8px;text-align:center;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:'Quicksand';font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);font-weight:600}
+.stat .v{font-family:'Quicksand';font-weight:700;font-size:19px;margin-top:3px}
+.stat.eat .v{color:var(--clay)}.stat.burn .v{color:var(--mint-deep)}
+
+.macros{padding:18px 20px 6px;border-top:1px solid var(--line)}
+.mrow{margin-bottom:15px}
+.mtop{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--mocha);margin-bottom:6px}
+.mtop .g{font-family:'Quicksand';font-weight:700;font-size:15px;color:var(--espresso)}
+.mtop .g span{font-size:11.5px;color:var(--taupe);font-weight:500}
+.track{height:9px;border-radius:999px;background:var(--sand);overflow:hidden}
+.fill{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.25,.8,.3,1)}
+.fill.p{background:var(--mint)}.fill.f{background:var(--caramel)}.fill.c{background:var(--rose)}
+.flag{padding:14px 20px;font-size:12.8px;line-height:1.55;font-weight:300;border-top:1px solid var(--line);color:var(--mocha)}
+.flag.over{background:#FBF3EF;color:#9A6B60}
+
+/* ---------- profile ---------- */
+label{display:block;font-family:'Quicksand';font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--taupe);margin-bottom:6px}
+input,select{width:100%;padding:11px 13px;font-family:inherit;font-size:15px;background:var(--cream);color:var(--espresso);
+  border:1px solid var(--line);border-radius:var(--r-sm);appearance:none;font-weight:400}
+input:focus,select:focus{background:#fff;border-color:var(--mint)}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--mocha) 50%),linear-gradient(135deg,var(--mocha) 50%,transparent 50%);
+  background-position:calc(100% - 17px) 20px,calc(100% - 12px) 20px;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+.r3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field{margin-bottom:13px}
+.tip{font-size:12px;color:var(--taupe);margin:7px 0 0;font-weight:300;line-height:1.5}
+details{margin-top:24px}
+summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;
+  font-family:'Quicksand';font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mocha);
+  background:var(--sand);padding:11px 20px;border-radius:999px}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:var(--mint-soft);color:var(--mint-deep)}
+summary::after{content:'⌄';font-size:15px;transition:transform .2s}
+details[open] summary::after{transform:rotate(180deg)}
+.dcontent{margin-top:14px}
+
+/* ---------- history ---------- */
+.section{margin-top:34px}
+.sec-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 4px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:'Quicksand';font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--taupe);text-align:right;
+  padding:0 0 9px;font-weight:600;border-bottom:1px solid var(--line)}
+th:first-child{text-align:left}
+td{padding:11px 0;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;font-weight:300}
+td:first-child{text-align:left;font-weight:400}
+tr:last-child td{border-bottom:0}
+td.pos{color:var(--mint-deep);font-weight:600;font-family:'Quicksand'}
+td.neg{color:var(--clay);font-weight:600;font-family:'Quicksand'}
+.total{background:linear-gradient(160deg,var(--mint-deep),#3E8770);color:#fff;padding:24px;border-radius:var(--r);margin-top:16px;
+  box-shadow:0 8px 26px rgba(76,154,129,.25);text-align:center}
+.total .eyebrow{color:rgba(255,255,255,.72)}
+.total .big{font-family:'Quicksand';font-weight:700;font-size:42px;letter-spacing:-.03em;margin-top:6px;line-height:1.05}
+.total .sub{font-size:13px;color:rgba(255,255,255,.82);margin-top:8px;font-weight:300}
+/* ---------- kế hoạch cuối tuần ---------- */
+.tl{position:relative;padding-left:2px}
+.tlrow{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:16px}
+.tlrow:last-child{padding-bottom:0}
+.tlrow::before{content:'';position:absolute;left:31px;top:26px;bottom:-4px;width:1.5px;background:var(--line)}
+.tlrow:last-child::before{display:none}
+.tltime{font-family:'Quicksand';font-weight:700;font-size:12.5px;color:var(--taupe);width:48px;flex-shrink:0;
+  padding-top:14px;text-align:right;font-variant-numeric:tabular-nums}
+.tlnode{width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:15px;border:3px solid var(--card);
+  box-shadow:0 0 0 1.5px var(--line);background:var(--sand);z-index:1}
+.tlnode.move{background:var(--mint);box-shadow:0 0 0 1.5px var(--mint)}
+.tlnode.eat{background:var(--clay);box-shadow:0 0 0 1.5px var(--clay)}
+.tlnode.care{background:var(--caramel);box-shadow:0 0 0 1.5px var(--caramel)}
+.tlcard{flex:1;min-width:0;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;
+  display:flex;gap:12px;align-items:flex-start;transition:all .2s}
+.tlcard:hover{background:#fff;box-shadow:var(--shadow)}
+.tlcard .info{flex:1;min-width:0}
+.tlcard .ttl{font-weight:500;font-size:15px;line-height:1.35}
+.tlcard .sub{font-size:12.6px;color:var(--taupe);font-weight:300;margin-top:3px;line-height:1.5}
+.tlcard .alt{font-size:12px;color:var(--mocha);font-weight:300;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.tlcard .right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.tlcard .kc{font-family:'Quicksand';font-weight:700;font-size:15px;white-space:nowrap}
+.tlcard .kc.move{color:var(--mint-deep)}
+.tlcard .kc.eat{color:var(--clay)}
+.tlcard .kc.care{color:var(--taupe);font-size:12.5px;font-weight:600}
+.add{font-family:'Quicksand';font-weight:700;font-size:11px;letter-spacing:.05em;border:1px solid var(--line);
+  background:var(--card);color:var(--mocha);padding:5px 12px;border-radius:999px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.add:hover{background:var(--mint);border-color:var(--mint);color:#fff}
+.add.done{background:var(--mint-soft);border-color:var(--mint-soft);color:var(--mint-deep)}
+.plan-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:var(--r-sm);
+  overflow:hidden;margin-top:20px}
+.plan-sum div{background:var(--cream);padding:14px 10px;text-align:center}
+.plan-sum b{display:block;font-family:'Quicksand';font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);font-weight:600}
+.plan-sum .v{font-family:'Quicksand';font-weight:700;font-size:20px;margin-top:3px}
+.plan-sum .v.mint{color:var(--mint-deep)}
+.plan-sum .v.clay{color:var(--clay)}
+footer{margin-top:38px;padding:0 6px;font-size:12px;color:var(--taupe);line-height:1.65;font-weight:300;text-align:center;max-width:64ch;margin-left:auto;margin-right:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Nhật ký low-carb</div>
+  <h1>Bạn kể,<br><em>mình tính cho.</em></h1>
+  <p class="lede">Gõ món ăn và buổi tập bằng lời thường ngày. App ước lượng kcal cùng đạm – béo – tinh bột, rồi đối chiếu với năng lượng bạn đốt.</p>
+</header>
+
+<div class="composer">
+  <textarea id="inp" placeholder="Ví dụ:&#10;2 quả trứng ốp la với 1 thìa dầu&#10;tô phở bò tái nhỏ&#10;ly cà phê sữa đá&#10;đi bộ nhanh 40 phút"></textarea>
+  <div class="composer-bar">
+    <div class="chips">
+      <button class="chip" data-t="1 tô phở bò tái">phở bò</button>
+      <button class="chip" data-t="1 đĩa cơm tấm sườn bì chả">cơm tấm</button>
+      <button class="chip" data-t="1 ly cà phê sữa đá">cà phê sữa</button>
+      <button class="chip" data-t="chạy bộ 30 phút">chạy 30′</button>
+      <button class="chip" data-t="tập pilates 1 tiếng">pilates 1h</button>
+    </div>
+    <button class="btn" id="btnCalc">Tính kcal</button>
+  </div>
+</div>
+<div id="err"></div>
+
+<div class="grid">
+  <section class="card">
+    <div class="card-head">
+      <h2 id="dayTitle">Hôm nay</h2>
+      <input id="date" type="date" style="width:auto;padding:7px 11px;font-size:13px;border-radius:999px">
+    </div>
+    <div id="list"></div>
+    <div class="empty" id="empty">Chưa có gì trong ngày. Gõ vài dòng phía trên rồi bấm Tính kcal — bạn có thể thêm dần, mỗi lần một bữa.</div>
+  </section>
+
+  <section>
+    <div class="panel">
+      <div class="ring-box">
+        <div class="ring">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="track" cx="100" cy="100" r="82"></circle>
+            <circle class="arc" id="arc" cx="100" cy="100" r="82" stroke-dasharray="515.2" stroke-dashoffset="515.2"></circle>
+          </svg>
+          <div class="ring-mid">
+            <span class="lab" id="ringLab">Thâm hụt</span>
+            <span class="val" id="ringVal">0</span>
+            <span class="unit">kcal</span>
+          </div>
+        </div>
+        <p class="ring-cap" id="ringCap">Vòng tròn đầy dần theo lượng bạn ăn so với lượng bạn đốt.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat burn"><b>Đốt</b><div class="v" id="sOut">0</div></div>
+        <div class="stat eat"><b>Ăn</b><div class="v" id="sIn">0</div></div>
+        <div class="stat"><b>Vận động</b><div class="v" id="sAct">0</div></div>
+      </div>
+
+      <div class="macros">
+        <div class="mrow"><div class="mtop"><span>Đạm</span><span class="g" id="mP">0<span> g / 0 g</span></span></div><div class="track"><div class="fill p" id="fP" style="width:0"></div></div></div>
+        <div class="mrow"><div class="mtop"><span>Béo</span><span class="g" id="mF">0<span> g</span></span></div><div class="track"><div class="fill f" id="fF" style="width:0"></div></div></div>
+        <div class="mrow"><div class="mtop"><span>Tinh bột</span><span class="g" id="mC">0<span> g / 0 g</span></span></div><div class="track"><div class="fill c" id="fC" style="width:0"></div></div></div>
+      </div>
+      <div class="flag" id="flag"></div>
+    </div>
+  </section>
+</div>
+
+<details id="profile">
+  <summary>Hồ sơ &amp; hạn mức</summary>
+  <div class="dcontent card">
+    <div class="r3">
+      <div class="field"><label>Giới tính</label><select id="sex"><option value="nu" selected>Nữ</option><option value="nam">Nam</option></select></div>
+      <div class="field"><label>Tuổi</label><input id="age" type="number" inputmode="numeric" value="28"></div>
+      <div class="field"><label>Cân nặng (kg)</label><input id="w" type="number" inputmode="decimal" value="55" step="0.5"></div>
+    </div>
+    <div class="r2">
+      <div class="field"><label>Chiều cao (cm)</label><input id="h" type="number" inputmode="numeric" value="160"></div>
+      <div class="field"><label>Hạn mức tinh bột</label><select id="carbLim">
+        <option value="25">Keto chặt — 25 g</option><option value="50" selected>Low-carb — 50 g</option><option value="100">Low-carb thoáng — 100 g</option>
+      </select></div>
+    </div>
+    <div class="field"><label>Mức vận động nền</label><select id="act">
+      <option value="1.2">Ít vận động — ngồi cả ngày</option>
+      <option value="1.375" selected>Nhẹ — đi lại vừa phải</option>
+      <option value="1.55">Vừa — hay đi bộ, đứng nhiều</option>
+      <option value="1.725">Nhiều — lao động chân tay</option>
+    </select>
+    <p class="tip">Chọn theo sinh hoạt nền thôi nhé. Buổi tập bạn khai ở trên đã được cộng riêng, chọn mức nền cao nữa là tính trùng hai lần.</p></div>
+  </div>
+</details>
+
+<section class="section">
+  <div class="sec-head">
+    <div>
+      <h2>Ngày nghỉ năng động</h2>
+      <p class="tip" style="margin-top:6px">Một cuối tuần có nhịp: vận động nhẹ buổi sáng, chăm sóc bản thân buổi chiều, ăn theo low-carb xuyên suốt.</p>
+    </div>
+    <button class="btn ghost" id="btnAddAll">Thêm cả ngày vào nhật ký</button>
+  </div>
+  <div class="card">
+    <div class="tl" id="plan"></div>
+    <div class="plan-sum">
+      <div><b>Ăn cả ngày</b><div class="v clay" id="pIn">0</div></div>
+      <div><b>Vận động</b><div class="v mint" id="pAct">0</div></div>
+      <div><b>Thâm hụt dự kiến</b><div class="v" id="pDef">0</div></div>
+    </div>
+    <p class="tip" id="pNote"></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec-head"><h2>Các ngày đã ghi</h2><button class="btn ghost" id="btnClear">Xoá lịch sử</button></div>
+  <div class="card">
+    <table><thead><tr><th>Ngày</th><th>Đốt</th><th>Ăn</th><th>Tinh bột</th><th>Thâm hụt</th></tr></thead><tbody id="hist"></tbody></table>
+    <div class="empty" id="histEmpty">Lịch sử sẽ hiện ở đây sau ngày đầu tiên.</div>
+  </div>
+  <div class="total">
+    <div class="eyebrow">Tổng thâm hụt tích luỹ</div>
+    <div class="big" id="tDef">0 kcal</div>
+    <div class="sub" id="tKg">Tương đương 0,00 kg mỡ · trung bình 0 kcal/ngày</div>
+  </div>
+</section>
+
+<footer>
+  Con số là ước lượng theo khẩu phần phổ biến, sai số 15–25% là bình thường với món nhiều dầu mỡ hay nước dùng. Cách dùng đúng là khai báo nhất quán rồi so cân nặng sau 2–3 tuần để hiệu chỉnh. Nếu bạn có bệnh nền, đang dùng thuốc, mang thai hoặc cho con bú, hãy hỏi bác sĩ trước khi ăn low-carb hay tạo thâm hụt lớn.
+</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('vi-VN');
+const today=()=>new Date().toISOString().slice(0,10);
+const KEY='kcalog:v1';
+const C=515.2;
+let mem=null;
+const state={days:{},date:today(),busy:false};
+
+async function save(){
+  const data={days:state.days,profile:{sex:$('sex').value,age:$('age').value,w:$('w').value,h:$('h').value,act:$('act').value,carbLim:$('carbLim').value}};
+  try{await window.storage.set(KEY,JSON.stringify(data));}catch(e){mem=data;}
+}
+async function load(){
+  let d=null;
+  try{const r=await window.storage.get(KEY);if(r&&r.value)d=JSON.parse(r.value);}catch(e){d=mem;}
+  if(!d)return;
+  if(d.days)state.days=d.days;
+  if(d.profile)for(const k in d.profile){if($(k)&&d.profile[k]!=null)$(k).value=d.profile[k];}
+}
+function tdee(){
+  const w=+$('w').value||55,h=+$('h').value||160,age=+$('age').value||28;
+  const bmr=10*w+6.25*h-5*age+($('sex').value==='nam'?5:-161);
+  return Math.round(bmr*(+$('act').value||1.375));
+}
+
+const SYS=`Bạn là chuyên gia dinh dưỡng, ước lượng năng lượng cho món ăn Việt Nam và hoạt động thể chất.
+Với MỖI món ăn hoặc hoạt động người dùng liệt kê, tạo một phần tử trong mảng "items".
+- type: "food" cho đồ ăn/thức uống, "activity" cho vận động.
+- name: tên gọn, giữ nguyên cách gọi của người dùng.
+- portion: khẩu phần bạn dùng để tính (vd "1 tô ~450 g", "30 phút, cường độ vừa"). Nếu người dùng không nói rõ, hãy giả định khẩu phần phổ biến của người Việt và ghi rõ giả định đó.
+- kcal: số nguyên. Với activity là năng lượng ĐỐT THÊM ngoài mức chuyển hoá nền.
+- p, f, c: gam đạm, béo, tinh bột (carb thực, đã trừ chất xơ). Với activity đều bằng 0.
+- note: tối đa 10 từ, chỉ ghi khi có điều đáng lưu ý (nhiều đường ẩn, khẩu phần dao động mạnh). Không có thì để "".
+Tính kcal hoạt động theo cân nặng người dùng: {W} kg.
+CHỈ trả về JSON thuần theo dạng {"items":[...]}. Không markdown, không lời dẫn.`;
+
+async function ask(text){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,
+      system:SYS.replace('{W}',$('w').value||55),
+      messages:[{role:"user",content:text}]})
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const data=await res.json();
+  const raw=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const clean=raw.replace(/```json|```/g,'').trim();
+  const parsed=JSON.parse(clean.slice(clean.indexOf('{'),clean.lastIndexOf('}')+1));
+  if(!parsed.items||!Array.isArray(parsed.items)) throw new Error('Dữ liệu trả về không đúng dạng');
+  return parsed.items;
+}
+async function run(){
+  const text=$('inp').value.trim();
+  if(!text||state.busy)return;
+  state.busy=true;$('btnCalc').disabled=true;$('err').innerHTML='';$('empty').hidden=true;
+  $('list').insertAdjacentHTML('beforeend','<div class="loading" id="load"><span class="pip"></span><span class="pip"></span><span class="pip"></span>Đang ước lượng…</div>');
+  try{
+    const items=await ask(text);
+    const day=state.days[state.date]||(state.days[state.date]=[]);
+    items.forEach(i=>day.push({id:Math.random().toString(36).slice(2,9),
+      type:i.type==='activity'?'activity':'food',
+      name:String(i.name||'Mục không tên'),portion:String(i.portion||''),
+      kcal:Math.max(0,Math.round(+i.kcal||0)),
+      p:Math.max(0,+i.p||0),f:Math.max(0,+i.f||0),c:Math.max(0,+i.c||0),
+      note:String(i.note||'')}));
+    $('inp').value='';render();save();
+  }catch(e){
+    $('err').innerHTML='<div class="err">Không tính được lần này: '+e.message+'. Thử bấm lại, hoặc tách bớt số dòng trong ô nhập.</div>';
+  }finally{
+    state.busy=false;$('btnCalc').disabled=false;
+    const l=$('load');if(l)l.remove();
+    if(!(state.days[state.date]||[]).length)$('empty').hidden=false;
+  }
+}
+
+function render(){
+  const day=state.days[state.date]||[];
+  $('list').innerHTML=day.map(i=>`
+    <div class="entry">
+      <span class="dot ${i.type==='activity'?'act':''}">${i.type==='activity'?'✦':'●'}</span>
+      <div class="body">
+        <div class="nm">${esc(i.name)}</div>
+        <div class="meta">${esc(i.portion)}${i.type==='food'?` · <b>Đ</b> ${Math.round(i.p)} g · <b>B</b> ${Math.round(i.f)} g · <span class="${i.c>=20?'hi':''}"><b>T</b> ${Math.round(i.c)} g</span>`:''}${i.note?' · '+esc(i.note):''}</div>
+      </div>
+      <div class="kc ${i.type==='activity'?'act':''}">${i.type==='activity'?'−':''}${fmt(i.kcal)}</div>
+      <button class="x" data-id="${i.id}" aria-label="Xoá ${esc(i.name)}">×</button>
+    </div>`).join('');
+  $('empty').hidden=day.length>0;
+
+  const inK=day.filter(i=>i.type==='food').reduce((s,i)=>s+i.kcal,0);
+  const actK=day.filter(i=>i.type==='activity').reduce((s,i)=>s+i.kcal,0);
+  const base=tdee(),out=base+actK,def=out-inK;
+  const P=day.reduce((s,i)=>s+i.p,0),F=day.reduce((s,i)=>s+i.f,0),Cb=day.reduce((s,i)=>s+i.c,0);
+
+  const pct=Math.min(inK/out,1.6);
+  $('arc').style.strokeDashoffset=C-C*Math.min(pct,1);
+  $('arc').classList.toggle('over',inK>out);
+  $('ringLab').textContent=def>=0?'Còn lại':'Vượt';
+  $('ringVal').textContent=fmt(Math.abs(def));
+  $('ringCap').textContent=day.length===0
+    ? 'Vòng tròn đầy dần theo lượng bạn ăn so với lượng bạn đốt.'
+    : (def>=0?`Đã dùng ${Math.round(inK/out*100)}% năng lượng đốt ra hôm nay.`
+             :`Đã ăn vượt ${Math.round((inK/out-1)*100)}% so với mức đốt hôm nay.`);
+
+  $('sOut').textContent=fmt(out);$('sIn').textContent=fmt(inK);$('sAct').textContent=actK?'−'+fmt(actK):'0';
+
+  const w=+$('w').value||55,pTarget=Math.round(w*1.8),lim=+$('carbLim').value;
+  $('mP').innerHTML=Math.round(P)+'<span> g / '+pTarget+' g</span>';
+  $('mF').innerHTML=Math.round(F)+'<span> g</span>';
+  $('mC').innerHTML=Math.round(Cb)+'<span> g / '+lim+' g</span>';
+  $('fP').style.width=Math.min(P/pTarget*100,100)+'%';
+  $('fF').style.width=Math.min(F/Math.max(1,(out*0.6/9))*100,100)+'%';
+  $('fC').style.width=Math.min(Cb/lim*100,100)+'%';
+
+  const f=$('flag');
+  if(!day.length){f.className='flag';f.textContent='Khai báo càng cụ thể — cỡ tô, mấy thìa dầu, có đồ uống ngọt không — thì con số càng sát.';}
+  else if(Cb>lim){f.className='flag over';f.textContent=`Tinh bột đã vượt hạn mức ${lim} g. Thủ phạm thường là nước dùng, nước chấm pha đường và đồ uống — nên cắt ở đó trước khi cắt cơm.`;}
+  else if(def>1000){f.className='flag over';f.textContent='Thâm hụt hôm nay hơi sâu. Vài ngày thì không sao, nhưng kéo dài dễ mất cơ và đói bù — cân nhắc thêm một phần đạm.';}
+  else{f.className='flag';f.textContent=`Còn ${Math.max(0,lim-Math.round(Cb))} g tinh bột trong hạn mức, đạm đang ở ${Math.round(P)} trên ${pTarget} g.`;}
+  renderHist();renderPlan();
+}
+function renderHist(){
+  const dates=Object.keys(state.days).filter(d=>state.days[d].length).sort().reverse();
+  const base=tdee();
+  $('hist').innerHTML=dates.map(d=>{
+    const it=state.days[d];
+    const inK=it.filter(x=>x.type==='food').reduce((s,x)=>s+x.kcal,0);
+    const out=base+it.filter(x=>x.type==='activity').reduce((s,x)=>s+x.kcal,0);
+    const cb=it.reduce((s,x)=>s+x.c,0),def=out-inK;
+    return `<tr><td>${d.split('-').reverse().slice(0,2).join('/')}</td><td>${fmt(out)}</td><td>${fmt(inK)}</td><td>${Math.round(cb)} g</td><td class="${def>=0?'pos':'neg'}">${def>=0?'−':'+'}${fmt(Math.abs(def))}</td></tr>`;
+  }).join('');
+  $('histEmpty').hidden=dates.length>0;
+  const total=dates.reduce((s,d)=>{
+    const it=state.days[d];
+    const inK=it.filter(x=>x.type==='food').reduce((a,x)=>a+x.kcal,0);
+    const out=base+it.filter(x=>x.type==='activity').reduce((a,x)=>a+x.kcal,0);
+    return s+(out-inK);},0);
+  $('tDef').textContent=(total>=0?'−':'+')+fmt(Math.abs(total))+' kcal';
+  const avg=dates.length?total/dates.length:0;
+  $('tKg').textContent=`Tương đương ${Math.abs(total/7700).toFixed(2).replace('.',',')} kg mỡ ${total>=0?'đã giảm':'dư ra'} · trung bình ${fmt(Math.abs(avg))} kcal/ngày · ${dates.length} ngày`;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ---------- lịch trình cuối tuần ---------- */
+const PLAN=[
+ {t:'07:00',k:'eat',ttl:'Nước ấm chanh muối + cà phê đen',sub:'500 ml nước, 1 ly cà phê không đường',kcal:5,p:0,f:0,c:1,
+  alt:'Uống trước khi tập giúp đỡ hoa mắt, nhất là tuần đầu low-carb.'},
+ {t:'07:45',k:'move',ttl:'Pilates 60 phút',sub:'Reformer hoặc mat, cường độ vừa',kcal:190,
+  alt:'Không đi lớp được thì tập theo video 45 phút ≈ 140 kcal.'},
+ {t:'09:15',k:'eat',ttl:'Bữa sáng sau tập',sub:'2 trứng ốp la + ½ quả bơ + salad rau mầm dầu ô liu',kcal:430,p:20,f:34,c:6,
+  alt:'Ăn trong vòng 1–2 tiếng sau buổi tập để đỡ đói cồn cào buổi chiều.'},
+ {t:'10:30',k:'move',ttl:'Đi bộ ra quán cà phê',sub:'Khoảng 20 phút, nhịp nhanh vừa',kcal:70},
+ {t:'10:50',k:'eat',ttl:'Cà phê ngồi quán',sub:'Americano hoặc cà phê đen đá, không đường',kcal:5,p:0,f:0,c:1,
+  alt:'Thèm sữa thì latte không đường ≈ 90 kcal, 8 g carb — vẫn nằm trong hạn mức.'},
+ {t:'12:30',k:'eat',ttl:'Bữa trưa',sub:'Cá hồi áp chảo 150 g + bông cải xanh xào tỏi + salad dầu giấm',kcal:520,p:34,f:36,c:9},
+ {t:'14:00',k:'care',ttl:'Gội đầu dưỡng sinh',sub:'60 phút massage đầu vai gáy',kcal:20,
+  alt:'Gần như không đốt calo, nhưng hạ căng thẳng và giúp ngủ sâu — mà ngủ đủ mới là thứ giữ được lịch tập tuần sau.'},
+ {t:'15:30',k:'eat',ttl:'Bữa phụ trước gym',sub:'Sữa chua Hy Lạp không đường 150 g + 10 g hạt óc chó',kcal:155,p:16,f:8,c:6},
+ {t:'16:30',k:'move',ttl:'Gym',sub:'Tạ toàn thân 45 phút + đi bộ dốc 15 phút',kcal:290,
+  alt:'Đổi được thành bơi 40 phút ≈ 320 kcal hoặc đạp xe 50 phút ≈ 280 kcal.'},
+ {t:'18:30',k:'eat',ttl:'Bữa tối',sub:'Ức gà nướng sả ớt 150 g + rau muống xào tỏi + canh bí nấu tôm',kcal:450,p:42,f:20,c:11},
+ {t:'20:30',k:'move',ttl:'Đi bộ tiêu cơm & giãn cơ',sub:'20 phút quanh nhà, thêm 10 phút giãn cơ',kcal:60,
+  alt:'Đi bộ nhẹ sau bữa tối giúp đường huyết xuống êm hơn.'}
+];
+const KIND={move:{lab:'Vận động',pre:'−'},eat:{lab:'Ăn',pre:''},care:{lab:'Chăm sóc',pre:'~'}};
+
+function planScale(){return (+$('w').value||55)/55}
+function renderPlan(){
+  const s=planScale();
+  $('plan').innerHTML=PLAN.map((x,i)=>{
+    const kc=x.k==='eat'?x.kcal:Math.round(x.kcal*s);
+    return `<div class="tlrow">
+      <div class="tltime">${x.t}</div>
+      <div class="tlnode ${x.k}"></div>
+      <div class="tlcard">
+        <div class="info">
+          <div class="ttl">${x.ttl}</div>
+          <div class="sub">${x.sub}</div>
+          ${x.alt?`<div class="alt">${x.alt}</div>`:''}
+        </div>
+        <div class="right">
+          <span class="kc ${x.k}">${x.k==='care'?'thư giãn':KIND[x.k].pre+fmt(kc)+' kcal'}</span>
+          <button class="add" data-i="${i}">Thêm</button>
+        </div>
+      </div></div>`;
+  }).join('');
+
+  const inK=PLAN.filter(x=>x.k==='eat').reduce((a,x)=>a+x.kcal,0);
+  const actK=Math.round(PLAN.filter(x=>x.k!=='eat').reduce((a,x)=>a+x.kcal,0)*s);
+  const out=tdee()+actK;
+  $('pIn').textContent=fmt(inK)+' kcal';
+  $('pAct').textContent='−'+fmt(actK)+' kcal';
+  $('pDef').textContent='−'+fmt(out-inK)+' kcal';
+  $('pNote').textContent=`Tính theo hồ sơ ${$('w').value||55} kg của bạn: đốt tổng ${fmt(out)} kcal, ăn ${fmt(inK)} kcal, carb khoảng ${PLAN.reduce((a,x)=>a+(x.c||0),0)} g. Bấm Thêm ở từng mục để đưa vào nhật ký, hoặc sửa lại bằng ô nhập nếu bạn ăn khác kế hoạch.`;
+}
+function addPlanItem(i,btn){
+  const x=PLAN[i],s=planScale();
+  const day=state.days[state.date]||(state.days[state.date]=[]);
+  day.push({id:Math.random().toString(36).slice(2,9),
+    type:x.k==='eat'?'food':'activity',
+    name:x.ttl,portion:x.sub,
+    kcal:x.k==='eat'?x.kcal:Math.round(x.kcal*s),
+    p:x.p||0,f:x.f||0,c:x.c||0,note:x.t});
+  if(btn){btn.textContent='Đã thêm ✓';btn.classList.add('done');setTimeout(()=>{btn.textContent='Thêm';btn.classList.remove('done')},1600);}
+  render();save();
+}
+$('plan').addEventListener('click',e=>{
+  const b=e.target.closest('.add');if(!b)return;
+  addPlanItem(+b.dataset.i,b);
+});
+$('btnAddAll').addEventListener('click',()=>{
+  PLAN.forEach((_,i)=>addPlanItem(i));
+  document.querySelector('.grid').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+$('btnCalc').addEventListener('click',run);
+$('inp').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter')run();});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  $('inp').value=($('inp').value.trim()+'\n'+c.dataset.t).trim();$('inp').focus();}));
+$('list').addEventListener('click',e=>{
+  const b=e.target.closest('.x');if(!b)return;
+  state.days[state.date]=(state.days[state.date]||[]).filter(i=>i.id!==b.dataset.id);
+  render();save();});
+$('date').addEventListener('change',e=>{
+  state.date=e.target.value||today();
+  $('dayTitle').textContent=state.date===today()?'Hôm nay':'Ngày '+state.date.split('-').reverse().join('/');
+  render();});
+['sex','age','w','h','act','carbLim'].forEach(id=>$(id).addEventListener('input',()=>{render();save();}));
+$('btnClear').addEventListener('click',()=>{if(!confirm('Xoá toàn bộ lịch sử đã ghi?'))return;state.days={};render();save();});
+
+$('date').value=state.date;
+load().then(render).catch(render);
+</script>
